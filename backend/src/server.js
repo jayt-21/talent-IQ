@@ -3,9 +3,12 @@ import express from 'express';
 import { ENV } from './lib/env.js';
 import path from 'path';
 import { connectDB } from './lib/db.js';
+import {clerkMiddleware} from '@clerk/express'
 import cors from "cors";
 import { serve } from "inngest/express";
 import { inngest, functions } from "./lib/inngest.js";
+import { protectRoute } from './middleware/protectRoute.js';
+import chatRoutes from "./routes/chatRoutes.js"
 
 
 const app=express();
@@ -20,9 +23,14 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(clerkMiddleware());//adds value to request object
+
 app.use('/api/inngest',serve({client:inngest,functions}));
 
-app.get('/books',(req,res)=>{
+app.use("/api/chat",chatRoutes);
+
+app.get('/video-calls',protectRoute,(req,res)=>{
+    
     res.status(200).json({msg:"this is the books endpoint"});
 });
 
